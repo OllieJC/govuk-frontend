@@ -8,13 +8,14 @@ const sass = require('gulp-sass')(require('node-sass'))
 const plumber = require('gulp-plumber')
 const postcss = require('gulp-postcss')
 const autoprefixer = require('autoprefixer')
-const rollup = require('gulp-better-rollup')
+const rollup = require('rollup')
 const taskArguments = require('./task-arguments')
 const gulpif = require('gulp-if')
 const uglify = require('gulp-uglify')
 const eol = require('gulp-eol')
 const rename = require('gulp-rename')
 const cssnano = require('cssnano')
+const { glob } = require('glob')
 const postcsspseudoclasses = require('postcss-pseudo-classes')({
   // Work around a bug in pseudo classes plugin that badly transforms
   // :not(:whatever) pseudo selectors
@@ -185,31 +186,26 @@ gulp.task('scss:compile', function (done) {
 
 // Compile js task for preview ----------
 // --------------------------------------
-gulp.task('js:compile', () => {
+gulp.task('js:compile', async () => {
   // for dist/ folder we only want compiled 'all.js' file
-  const srcFiles = isDist ? configPaths.src + 'all.js' : configPaths.src + '**/*.js'
 
-  return gulp.src([
-    srcFiles,
-    '!' + configPaths.src + '**/*.test.js'
-  ])
-    .pipe(rollup({
-      // Used to set the `window` global and UMD/AMD export name.
-      name: 'GOVUKFrontend',
-      // Legacy mode is required for IE8 support
-      legacy: true,
-      // UMD allows the published bundle to work in CommonJS and in the browser.
-      format: 'umd'
-    }))
-    .pipe(gulpif(isDist, uglify({
-      ie8: true
-    })))
-    .pipe(gulpif(isDist,
-      rename({
-        basename: 'govuk-frontend',
-        extname: '.min.js'
+  // TODO: handle dist
+
+  glob(configPaths.src + '**/*.js', {ignore: '**/*.test.js'}, function (error, files) {
+    files.forEach(function (file) {
+      return rollup
+      .rollup({
+        input: file,
       })
-    ))
-    .pipe(eol())
-    .pipe(gulp.dest(destinationPath))
+      .then(bundle => {
+        let filename = file.replace('src/govuk', '')
+        return bundle.write({
+          file: destinationPath() + filename,
+          format: 'umd',
+          legacy: true, // needed for IE8 support, dropped in v0.60.0 of rollup
+          name: 'GOVUKFrontend',
+        });
+      });
+    })
+  })
 })
