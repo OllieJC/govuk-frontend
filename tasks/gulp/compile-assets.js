@@ -190,6 +190,21 @@ gulp.task('js:compile', async () => {
   // for dist/ folder we only want compiled 'all.js' file
 
   // TODO: handle dist
+  if (isDist) {
+    return rollup
+    .rollup({
+      input: configPaths.src + 'all.js',
+    })
+    .then(test => {
+      console.log(test)
+      return test.write({
+        file: destinationPath() + '/govuk-frontend.min.js',
+        format: 'umd',
+        legacy: true, // needed for IE8 support, dropped in v0.60.0 of rollup
+        name: 'GOVUKFrontend',
+      });
+    });
+  } else {
     glob(configPaths.src + '**/*.js', {ignore: '**/*.test.js'}, function (error, files) {
       files.forEach(function (file) {
         return rollup
@@ -208,4 +223,5 @@ gulp.task('js:compile', async () => {
         });
       })
     })
+  }
 })
