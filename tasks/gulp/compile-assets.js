@@ -190,22 +190,22 @@ gulp.task('js:compile', async () => {
   // for dist/ folder we only want compiled 'all.js' file
 
   // TODO: handle dist
-
-  glob(configPaths.src + '**/*.js', {ignore: '**/*.test.js'}, function (error, files) {
-    files.forEach(function (file) {
-      return rollup
-      .rollup({
-        input: file,
-      })
-      .then(bundle => {
-        let filename = file.replace('src/govuk', '')
-        return bundle.write({
-          file: destinationPath() + filename,
-          format: 'umd',
-          legacy: true, // needed for IE8 support, dropped in v0.60.0 of rollup
-          name: 'GOVUKFrontend',
+    glob(configPaths.src + '**/*.js', {ignore: '**/*.test.js'}, function (error, files) {
+      files.forEach(function (file) {
+        return rollup
+        .rollup({
+          input: file,
+        })
+        .then(bundle => {
+          let filename = file.replace('src/govuk', '')
+          let modulename = path.basename(file).replace('.js', '')
+          return bundle.write({
+            file: destinationPath() + filename,
+            format: 'umd',
+            legacy: true, // needed for IE8 support, dropped in v0.60.0 of rollup
+            name: modulename == 'all' ? 'GOVUKFrontend' : 'GOVUKFrontend.' + modulename
+          });
         });
-      });
+      })
     })
-  })
 })
