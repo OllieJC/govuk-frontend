@@ -23,6 +23,13 @@
     display: none;
   }
 
+  // Set the display to false if global-privacy-control_signal-true set on the body
+  .global-privacy-control_signal-true {
+    .govuk-cookie-banner {
+      display: none;
+    }
+  }
+
   .govuk-cookie-banner__message {
     // Remove the extra height added by the separator border.
     margin-bottom: -$border-bottom-width;

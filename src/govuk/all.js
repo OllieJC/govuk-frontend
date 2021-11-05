@@ -9,6 +9,7 @@ import NotificationBanner from './components/notification-banner/notification-ba
 import Header from './components/header/header'
 import Radios from './components/radios/radios'
 import Tabs from './components/tabs/tabs'
+import GlobalPrivacyControl from './utilities/global-privacy-control'
 
 function initAll (options) {
   // Set the options to an empty object by default if no options are passed.
@@ -17,6 +18,8 @@ function initAll (options) {
   // Allow the user to initialise GOV.UK Frontend in only certain sections of the page
   // Defaults to the entire document if nothing is set.
   var scope = typeof options.scope !== 'undefined' ? options.scope : document
+
+  GlobalPrivacyControl.init(options)
 
   var $buttons = scope.querySelectorAll('[data-module="govuk-button"]')
   nodeListForEach($buttons, function ($button) {
@@ -77,5 +80,6 @@ export {
   ErrorSummary,
   Header,
   Radios,
-  Tabs
+  Tabs,
+  GlobalPrivacyControl
 }
